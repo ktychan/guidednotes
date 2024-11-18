@@ -1,0 +1,12 @@
+\documentclass[tikz]{standalone}
+\begin{document}
+\begin{tikzpicture}[x=0.175in, y=0.175in]
+  \foreach \x in {0,1,...,40}
+  {
+    \foreach \y in {0,1,...,43}
+    {
+      \fill[gray!40] (\x, \y) circle[radius=0.5pt];
+    }
+  }
+\end{tikzpicture}
+\end{document}

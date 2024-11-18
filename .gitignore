@@ -1,0 +1,11 @@
+# directories
+build
+confidential
+
+# system files
+.DS_Store
+
+# ignore output
+*.pdf
+*.synctex
+*.synctex.gz

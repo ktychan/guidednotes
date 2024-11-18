@@ -1,0 +1,16 @@
+%! vim: ft=tex
+
+\usepackage[dvipsnames]{xcolor}
+% https://coolors.co/953946-82218b-007355-f59a23-ff4242
+\definecolor{info}{HTML}{953946}  % supplementary information
+\definecolor{supp}{HTML}{82218B}  % supplementary information
+\definecolor{main}{HTML}{007355}  % main message
+\definecolor{attn}{HTML}{F59A23}  % subtle easy to miss bits
+\definecolor{warn}{HTML}{D20000}  % warning for common mistake
+\definecolor{discord}{RGB}{88,101,242}
+
+\newcommand{\hlinfo}[1]{\textcolor{info}{#1}}
+\newcommand{\hlsupp}[1]{\textcolor{supp}{#1}}
+\newcommand{\hlmain}[1]{\textcolor{main}{#1}}
+\newcommand{\hlattn}[1]{\textcolor{attn}{#1}}
+\newcommand{\hlwarn}[1]{\textcolor{warn}{#1}}
