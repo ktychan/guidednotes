@@ -236,6 +236,14 @@
 
 % ------------------------------------------------------------
 %
+%         Keep track of page numbering of the weeks
+%
+% ------------------------------------------------------------
+\usepackage{luacode}
+\directlua{weeks = {}}
+
+% ------------------------------------------------------------
+%
 %           Make a week environment
 %
 % ------------------------------------------------------------
@@ -262,108 +270,100 @@
   \directlua{weeks[\theweek] = \the\value{page}}
 }
 
-% ------------------------------------------------------------
-%
-%         Keep track of page numbering of the weeks
-%
-% ------------------------------------------------------------
-\usepackage{luacode}
-\directlua{weeks = {}}
-
 \begin{document}
-  % --------------------
-  % 
-  % TITLE PAGE
-  % 
-  % --------------------
-  \begin{titlepage}
-    \thispagestyle{empty}
-    \huge
-    
-    \begin{center}
-      % title
-      \phantom{top}
-      \vspace{1in}
+% --------------------
+% 
+% TITLE PAGE
+% 
+% --------------------
+\begin{titlepage}
+  \thispagestyle{empty}
+  \huge
 
-      {\Huge\bfseries \thecoursetitle}
+  \begin{center}
+    % title
+    \phantom{top}
+    \vspace{1in}
 
-      \vspace{1cm}
-      \theauthor
+    {\Huge\bfseries \thecoursetitle}
 
-      \theinstitute
-      \vfill{}
+    \vspace{1cm}
+    \theauthor
 
-      \thecourseterm~\thecourseyear
+    \theinstitute
+    \vfill{}
 
-      \vspace{2in}
-    \end{center}
+    \thecourseterm~\thecourseyear
 
-    % creaate a blank page
-    \clearpage{\thispagestyle{empty}\cleardoublepage}
-  \end{titlepage}
-  \directlua{titlepage = \the\value{page} - 1}  % has be the line immediaately after \end{titlepage}
+    \vspace{2in}
+  \end{center}
 
-  % --------------------
-  % 
-  % FRONT MATTER
-  % 
-  % --------------------
-  \frontmatter{}
-  \pagenumbering{roman}
-  
-  \renewcommand{\contentsname}{Table of Contents}
-  \phantomsection{} \label{toc}
-  \addcontentsline{toc}{chapter}{\contentsname}
-  \tableofcontents{}
-  \clearpage
-
+  % creaate a blank page
   \clearpage{\thispagestyle{empty}\cleardoublepage}
-  \directlua{frontmatter = \the\value{page} - 1}  % has to be the last line of the front matter
+\end{titlepage}
+\directlua{titlepage = \the\value{page} - 1}  % has be the line immediaately after \end{titlepage}
 
-  %--------------------
-  % 
-  % MAIN MATTER
-  % 
-  % --------------------
-  \mainmatter{}
+% --------------------
+% 
+% FRONT MATTER
+% 
+% --------------------
+\frontmatter{}
+\pagenumbering{roman}
 
-  \begin{week}{MONTH X to X}
-    placeholder
-  \end{week}
+\renewcommand{\contentsname}{Table of Contents}
+\phantomsection{} \label{toc}
+\addcontentsline{toc}{chapter}{\contentsname}
+\tableofcontents{}
+\clearpage
 
-  \begin{week}{MONTH X to X}
-    placeholder
-  \end{week}
+\clearpage{\thispagestyle{empty}\cleardoublepage}
+\directlua{frontmatter = \the\value{page} - 1}  % has to be the last line of the front matter
 
-  %--------------------
-  % 
-  % BACK MATTER
-  % 
-  % --------------------
-  \backmatter{}
+%--------------------
+% 
+% MAIN MATTER
+% 
+% --------------------
+\mainmatter{}
 
-  %--------------------
-  % 
-  % generate files in the publish direjctory
-  % 
-  % --------------------
-  \begin{luacode}
-    local offset = titlepage + frontmatter
-    local prev = offset + 1
-    for i, pagenum in pairs(weeks) do
-    local f = io.open(string.format("./publish/week%d.tex", i), "w")
-    local a = prev
-    local b = pagenum + offset - 1
-    local s = string.format("\\includepdf[pages=%d-%d]{../build/main.pdf}", a, b)
+\begin{week}{MONTH X to X}
+  placeholder
+\end{week}
 
-    f:write("\\documentclass{article}")
-    f:write("\\usepackage{pdfpages}")
-    f:write("\\begin{document}")
-    f:write(s)
-    f:write("\\end{document}")
-    f:close()
+\begin{week}{MONTH X to X}
+  placeholder
+\end{week}
 
-    prev = b + 1
-    end
-  \end{luacode}
+%--------------------
+% 
+% BACK MATTER
+% 
+% --------------------
+\backmatter{}
+
+%--------------------
+% 
+% generate files in the publish direjctory
+% 
+% --------------------
+\begin{luacode}
+  local offset = titlepage + frontmatter
+  local prev = offset + 1
+  for i, pagenum in pairs(weeks) do
+  local f = io.open(string.format("./publish/week%d.tex", i), "w")
+  local a = prev
+  local b = pagenum + offset - 1
+  local s = string.format("\\includepdf[pages=%d-%d]{../build/main.pdf}", a, b)
+
+  f:write("\\documentclass{article}")
+  f:write("\\usepackage{pdfpages}")
+  f:write("\\begin{document}")
+  f:write(s)
+  f:write("\\end{document}")
+  f:close()
+
+  prev = b + 1
+  end
+\end{luacode}
 \end{document}

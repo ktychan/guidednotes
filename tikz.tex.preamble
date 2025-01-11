@@ -1,4 +1,6 @@
 %! vim: ft=tex
+%! tex root = main.tex
+
 \usepackage{tikz, pgfplots}
 \usepackage{tikzpagenodes}
 

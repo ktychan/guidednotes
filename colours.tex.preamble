@@ -1,4 +1,5 @@
 %! vim: ft=tex
+%! tex root = main.tex
 
 \usepackage[dvipsnames]{xcolor}
 % https://coolors.co/953946-82218b-007355-f59a23-ff4242
