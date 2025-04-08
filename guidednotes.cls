@@ -179,11 +179,81 @@
   \smallbreak
 }
 
-% ------------------------------------------------------------
-%
-%           authorship
-%
-% ------------------------------------------------------------
+\mdfdefinestyle{wide}{
+  % userdefinedwidth=0.95\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=1em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=center,
+  roundcorner=3pt,
+}
+\mdfdefinestyle{simple}{
+  userdefinedwidth=0.9\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=1em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=center,
+  roundcorner=3pt,
+  startinnercode={\linespread{1.5}\selectfont}
+}
+
+\mdfdefinestyle{simple-compact}{
+  userdefinedwidth=0.9\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=1em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=center,
+  roundcorner=3pt,
+}
+
+\mdfdefinestyle{sidenote}{
+  userdefinedwidth=0.3\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=1em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=right,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  startinnercode={\footnotesize}
+}
+
+\mdfdefinestyle{withref}{
+  userdefinedwidth=0.9\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=0.25em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=center,
+  roundcorner=3pt,
+  startinnercode={\linespread{1.5}\selectfont}
+}
+
+\mdfdefinestyle{withref-compact}{
+  userdefinedwidth=0.9\textwidth,
+  innertopmargin=1em,
+  innerleftmargin=1em,
+  innerbottommargin=0.25em,
+  innerrightmargin=1em,
+  skipabove=1em,
+  skipbelow=1em,
+  align=center,
+  roundcorner=3pt,
+}
 
 % ------------------------------------------------------------
 %
