@@ -48,6 +48,7 @@
 \RequirePackage{amssymb}
 \RequirePackage{amsfonts}
 \RequirePackage{cancel}
+\RequirePackage[normalem]{ulem}
 
 % typography
 \RequirePackage{microtype} 
