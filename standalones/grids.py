@@ -14,6 +14,6 @@ tex = lambda n: "\n".join([
     r'\end{document}'
 ])
 
-for n in range(1, 50+1):
+for n in range(1, 60+1):
     with open(f"grid_{n}_by_40.tex", 'w') as f:
         f.write(tex(n))

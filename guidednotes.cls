@@ -76,16 +76,16 @@
 % ------------------------------------------------------------
 
 % layout
-\geometry{margin=0.75in, top=0.25in, bottom=0.25in, nofoot, nomarginpar, includehead, includefoot, headheight=15pt, footskip=15pt}
+\geometry{margin=0.75in, top=0.25in, bottom=0.25in, nofoot, nomarginpar, includehead, includefoot, headheight=14pt, footskip=7pt, headsep=4pt}
 
-% page styles
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[OR, EL]{\small Page~\thepage}
-\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[OR, EL]{\small Page~\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
 
 \newcommand{\firstpageheader}{}
-\fancypagestyle{firstpage}[fancy]{
+\fancypagestyle{firstpage}[plain]{
   \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
   \fancyhead[C]{\small\firstpageheader{}}
   \renewcommand{\headrulewidth}{.4pt}
@@ -173,10 +173,25 @@
 }
 
 \newcommand{\textbook}[1]{\noindent{} {\footnotesize \faBookReader{} #1 \hfill}}
-\newcommand{\blanklines}[1]{
-  \par
-  \includegraphics{./standalones/build/grid_#1_by_40.pdf}
-  \smallbreak
+
+\newdimen\vremaining
+\directlua{
+  function calc_remaining_lines()
+    local h = tex.dimen.vremaining / 65535 / 72.27 
+    local n = math.floor(h / 0.175) - 1
+    tex.print(n)
+  end
+}
+
+\newcommand{\blanklinesfill}[1][\medskipamount]{
+  \setlength\vremaining{\dimexpr\textheight - \pagetotal\relax}
+  \blanklines[#1]{\directlua{calc_remaining_lines()}}
+  \vfill{}
+}
+
+\newcommand{\blanklines}[2][\medskipamount]{
+  \vspace{#1}
+  \centerline{ \includegraphics{./standalones/build/grid_#2_by_40} }
 }
 
 \mdfdefinestyle{wide}{
