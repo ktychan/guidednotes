@@ -40,7 +40,7 @@
 % latex features
 \RequirePackage[inline]{enumitem}
 \RequirePackage[framemethod=tikz]{mdframed}
-\RequirePackage{xcolor}
+\RequirePackage[dvipsnames]{xcolor}
 
 % math
 \RequirePackage{amsmath}
@@ -101,28 +101,6 @@
 \everymath{\displaystyle}
 \setmainfont{STIX Two Text}
 \setmathfont{STIX Two Math}
-\setmathfont[range=bb]{TeX Gyre Termes Math}
-\setmathfont[range=\int]{STIX Two Math}
-
-\newfontface{\emojifont}{Noto Color Emoji}[Renderer=Harfbuzz]
-\newcommand{\emStar}{{\emojifont{⭐️}}}
-\newcommand{\emCaution}{{\emojifont{⚠️}}}
-\newcommand{\emYes}{{\emojifont{👍}}}
-\newcommand{\emNo}{{\emojifont{👎}}}
-\newcommand{\emMaybe}{{\emojifont{🤔}}}
-
-% https://coolors.co/953946-82218b-007355-f59a23-ff4242
-\definecolor{info}{HTML}{953946}  % supplementary information
-\definecolor{supp}{HTML}{82218B}  % supplementary information
-\definecolor{main}{HTML}{007355}  % main message
-\definecolor{attn}{HTML}{F59A23}  % subtle easy to miss bits
-\definecolor{warn}{HTML}{D20000}  % warning for common mistake
-
-\newcommand{\hlinfo}[1]{{\color{info}#1}}
-\newcommand{\hlsupp}[1]{{\color{supp}#1}}
-\newcommand{\hlmain}[1]{{\color{main}#1}}
-\newcommand{\hlattn}[1]{{\color{attn}#1}}
-\newcommand{\hlwarn}[1]{{\color{warn}#1}}
 
 \renewcommand{\UrlFont}{\footnotesize\ttfamily}
 \renewcommand{\epsilon}{\varepsilon}
@@ -130,8 +108,6 @@
 \renewcommand{\arctan}{\tan^{-1}}
 \renewcommand{\arcsin}{\sin^{-1}}
 \renewcommand{\arccos}{\cos^{-1}}
-
-\pgfplotsset{compat=1.18}
 
 % math
 \numberwithin{equation}{chapter}
