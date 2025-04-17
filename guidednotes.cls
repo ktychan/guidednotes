@@ -19,10 +19,12 @@
 }
 
 \newcommand{\setterm}[3]{%
-  \def\@thecourseterm{Fall}
-  \def\@thecourseyear{2025}
-  \def\@thecoursebreak{2025}
+  \def\@thecourseterm{#1}
+  \def\@thecourseyear{#2}
+  \def\@thecoursebreak{#3}
 }
+
+\newcommand{\thiscourse}{\@thecoursesubject{}~\@thecoursenumb{}}
 
 % ------------------------------------------------------------
 %
@@ -36,6 +38,7 @@
 \RequirePackage{geometry}
 \RequirePackage{fancyhdr}
 \RequirePackage{ragged2e}
+\RequirePackage{multicol}
 
 % latex features
 \RequirePackage[inline]{enumitem}
@@ -64,7 +67,9 @@
 
 % figure and tables
 \RequirePackage{float}
+\RequirePackage{wrapfig}
 \RequirePackage{booktabs}
+\RequirePackage{multirow}
 \RequirePackage{tikz}
 \RequirePackage{pgfplots}
 
@@ -134,11 +139,19 @@
 \renewcommand{\arcsin}{\sin^{-1}}
 \renewcommand{\arccos}{\cos^{-1}}
 
+% framed statements
+\surroundwithmdframed[style=simple-compact]{thm}
+\surroundwithmdframed[style=simple-compact]{definition}
+\surroundwithmdframed[style=simple-compact]{method}
+
 % math
 \numberwithin{equation}{chapter}
 \theoremstyle{definition}
-\newtheorem{thm}{Theorem}[chapter]
-\newtheorem{example}[thm]{Example}
+\newtheorem{stmt}{Statement}[chapter]
+\newtheorem{thm}[stmt]{Theorem}
+\newtheorem{definition}[stmt]{Definition}
+\newtheorem{example}[stmt]{Example}
+\newtheorem{exercise}[stmt]{Exercise}
 
 % ------------------------------------------------------------
 %
@@ -156,7 +169,7 @@
   % chapter and section numbering
   \setcounter{chapter}{\theweek}
   \setcounter{section}{0}
-  \setcounter{thm}{0}
+  \setcounter{stmt}{0}
 
   % add to toc
   \phantomsection{}\label{week\theweek}
