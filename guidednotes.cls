@@ -112,7 +112,7 @@
 % math
 \numberwithin{equation}{chapter}
 \theoremstyle{definition}
-\newtheorem{thm}{Theorem}
+\newtheorem{thm}{Theorem}[chapter]
 \newtheorem{example}[thm]{Example}
 
 % ------------------------------------------------------------
