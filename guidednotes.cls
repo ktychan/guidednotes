@@ -61,6 +61,7 @@
 \RequirePackage{parskip}
 \RequirePackage[mathcal]{euscript}
 \RequirePackage[sc,center,tiny]{titlesec}
+\RequirePackage{csquotes}
 
 % links and pdf
 \RequirePackage[hidelinks, pdfusetitle]{hyperref}
@@ -72,9 +73,15 @@
 \RequirePackage{multirow}
 \RequirePackage{tikz}
 \RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 % subfiles
-\RequirePackage{refcount, xr, subfiles}
+% \RequirePackage{refcount}
+% \RequirePackage{xr}
+\RequirePackage{xpatch}
+\RequirePackage{standalone}
+\RequirePackage{subfiles}
+
 % ------------------------------------------------------------
 %
 %           SETUP
@@ -205,7 +212,7 @@
 
 \newcommand{\blanklines}[2][\medskipamount]{
   \vspace{#1}
-  \centerline{ \includegraphics{./standalones/build/grid_#2_by_40} }
+  \centerline{ \includegraphics{./standalones/grid_#2_by_40} }
 }
 
 \mdfdefinestyle{wide}{
