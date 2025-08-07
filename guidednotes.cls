@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{guidednotes}[2025/04/08 v1.0 Guided Notes]
+\ProvidesClass{guidednotes}[2025/08/07 v1.0 Guided Notes]
 
 % based on the book class
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
@@ -269,7 +269,7 @@
 %           front matter
 %
 % ------------------------------------------------------------
-\AtBeginDocument{
+\ifSubfilesClassLoaded{}{\AtBeginDocument{
   \begin{titlepage}
     \thispagestyle{empty}
     \huge
@@ -310,4 +310,4 @@
   \directlua{frontmatter = \the\value{page} - 1}  % has to be the last line of the front matter
 
   \mainmatter{}
-}
+}}
