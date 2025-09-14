@@ -119,9 +119,9 @@
 \renewcommand{\arccos}{\cos^{-1}}
 
 % framed statements
-\surroundwithmdframed[style=simple-compact]{thm}
-\surroundwithmdframed[style=simple-compact]{definition}
-\surroundwithmdframed[style=simple-compact]{method}
+\surroundwithmdframed[style=withref-compact]{thm}
+\surroundwithmdframed[style=withref-compact]{definition}
+\surroundwithmdframed[style=withref-compact]{method}
 
 % math
 \numberwithin{equation}{chapter}
