@@ -1,0 +1,204 @@
+%% blanks.sty  --  TikZ dot-grid blank lines
+%%
+%% REQUIRES: tikz, keyval
+%%
+%% Package options (key=value):
+%%   spacing=<dimen>   Dot pitch, horizontal and vertical  (default 0.175in)
+%%   colour=<colour>     xcolor expression for dots          (default gray!40)
+%%
+%% Commands:
+%%   \blanks[<width>]{<n>}   Produce n dot rows (default width: \linewidth)
+%%   \blanks*[<width>]       Stretchable fill, snapped to dot-row grid
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{blanks}[2024/01/01 v10.0 TikZ dot-grid blank lines]
+
+\RequirePackage{tikz}
+\RequirePackage{keyval}
+
+%% ---- Parameters with defaults -----------------------------------------
+
+\newlength{\blanks@spacing}
+\setlength{\blanks@spacing}{0.175in}
+\newcommand{\blanks@colour}{gray!40}
+
+%% ---- Package options via keyval ----------------------------------------
+
+\define@key{blanks}{spacing}{\setlength{\blanks@spacing}{#1}}
+\define@key{blanks}{colour}  {\renewcommand{\blanks@colour}{#1}}
+
+\DeclareOption*{\PackageWarning{blanks}{Unknown option `\CurrentOption' ignored}}
+\ProcessOptions\relax
+
+\@ifpackagewith{blanks}{}{}{%
+  \expandafter\setkeys\expandafter{blanks}{\@ptionlist{blanks.sty}}%
+}
+
+%% ---- Internal scratch registers ---------------------------------------
+
+\newcount\blanks@cols   % ceiling(width / \blanks@spacing)
+\newcount\blanks@rows   % number of rows to draw
+
+%% \linewidth vs \textwidth:
+%% \textwidth is fixed for the whole document -- it is the width of the
+%% main text column as set by the page geometry and never changes.
+%% \linewidth is the width available for typesetting in the *current*
+%% context: equal to \textwidth at the top level, but automatically
+%% narrowed inside environments like list, quote, minipage, or multicols.
+%% We use \linewidth here so that \blanks adapts correctly when called
+%% inside any such environment.
+
+\newlength{\blanks@width}   % the active width for the current invocation
+\newlength{\blanks@lwid}    % scratch register for ceiling computation
+
+%% \blanks@computecols{<width>}
+%% Stores <width> in \blanks@width and computes ceiling(<width>/spacing).
+\newcommand{\blanks@computecols}[1]{%
+  \setlength{\blanks@width}{#1}%
+  %% Ceiling division: cols = floor((width + spacing - 1sp) / spacing).
+  \setlength{\blanks@lwid}{\blanks@width}%
+  \addtolength{\blanks@lwid}{\blanks@spacing}%
+  \addtolength{\blanks@lwid}{-1sp}%
+  \blanks@cols=\blanks@lwid
+  \divide\blanks@cols by \blanks@spacing
+}
+
+%% ---- Internal: render a TikZ dot grid ---------------------------------
+%% #1 = col count (integer), #2 = row count (integer).
+%% x=y=\blanks@spacing, so coordinates are plain integers.
+%% Dots at (\col, \row) for col in 0..#1, row in 0..(#2-1).
+%% Phantom path to (#1, 0) declares the picture width correctly.
+%%
+%% baseline=0pt: aligns the picture's y=0 coordinate with the
+%%   surrounding text baseline.  Without this, TikZ aligns on the
+%%   picture's center, which would shift the grid vertically relative
+%%   to the line it sits on.
+%% inner sep=0pt: removes the default padding that TikZ adds inside
+%%   node boxes.  Without this, every \node would have extra space
+%%   around it, affecting bounding-box calculations.  We use \fill
+%%   rather than nodes here, but setting it to 0pt is good practice.
+%% outer sep=0pt: removes the gap TikZ places between a node's border
+%%   and any connecting edge.  Again not directly relevant to \fill
+%%   circles, but zeroing it ensures the picture bounding box is
+%%   computed without any invisible surrounding margin.
+
+\newcommand{\blanks@rendergrid}[2]{%
+  \noindent
+  \begin{tikzpicture}[x=\blanks@spacing, y=\blanks@spacing,
+                      baseline=0pt, inner sep=0pt, outer sep=0pt]
+    \path (0,0) -- (#1, 0);
+    \foreach \col in {0, 1, ..., #1}{%
+      \foreach \row in {0, 1, ..., \the\numexpr#2-1\relax}{%
+        \fill[\blanks@colour] (\col, \row) circle[radius=0.5pt];
+      }
+    }
+  \end{tikzpicture}\par
+}
+
+%% ---- \blanks[<width>]{n}: fixed number of rows ------------------------
+
+\newcommand{\blanks@fixed}[2][\linewidth]{%
+  \begingroup
+    \parindent\z@
+    \hfuzz=\maxdimen
+    \par
+    \blanks@computecols{#1}%
+    \blanks@rendergrid{\the\blanks@cols}{#2}%
+    \vspace{\blanks@spacing}%
+  \endgroup
+}
+
+%% ---- \blanks*[<width>]: stretchable fill, snapped to grid -------------
+%% The saved row box is keyed on \blanks@width so it is rebuilt whenever
+%% either the requested width or \linewidth changes.
+
+\newsavebox{\blanks@rowbox}
+\newlength{\blanks@savedwidth}
+\setlength{\blanks@savedwidth}{0pt}
+
+\newcommand{\blanks@buildrowbox}[1]{%
+  \blanks@computecols{#1}%
+  \savebox{\blanks@rowbox}{%
+    \begin{tikzpicture}[x=\blanks@spacing, y=\blanks@spacing,
+                        baseline=0pt, inner sep=0pt, outer sep=0pt]
+      \path (0,0) -- (\the\blanks@cols, 0);
+      \foreach \col in {0, 1, ..., \the\blanks@cols}{%
+        \fill[\blanks@colour] (\col, 0) circle[radius=0.5pt];
+      }
+    \end{tikzpicture}%
+  }%
+  \setlength{\blanks@savedwidth}{\blanks@width}%
+}
+
+\newif\ifblanks@rowbuilt
+\blanks@rowbuiltfalse
+
+\newcommand{\blanks@fill}[1][\linewidth]{%
+  {\parindent\z@\par}%
+  %% Recompute the requested width so we can compare against the cache.
+  \setlength{\blanks@width}{#1}%
+  \ifdim\blanks@width=\blanks@savedwidth
+    \ifblanks@rowbuilt\else
+      \blanks@buildrowbox{#1}%
+      \blanks@rowbuilttrue
+    \fi
+  \else
+    \blanks@buildrowbox{#1}%
+    \blanks@rowbuilttrue
+  \fi
+  \leaders\vbox to \blanks@spacing{%
+    \vss
+    \hbox{\usebox{\blanks@rowbox}}%
+    \vss
+  }\vfill
+  \par
+}
+
+\newcommand{\blanks}{%
+  \@ifstar
+    {\blanks@fill}%
+    {\blanks@fixed}%
+}
+
+
+%% ---- solution environment ---------------------------------------------
+%%
+%% \begin{solution}{<rows>} ... \end{solution}
+%%
+%% Assumes the solution lives inside a numbered "example" environment
+%% whose counter is named "example" and is subordinate to "section".
+%%
+%% Always produces \blanks{<rows>} in the document and writes the body
+%% to solutions/example-<section>.<example>.md via Lua.
+%% The solutions/ directory must exist before compilation.
+%%
+%% Requires: environ (for \BODY), lualatex (for io.open file writing).
+
+\RequirePackage{environ}
+
+%% ---- capture environment ----------------------------------------------
+%%
+%% \begin{capture} ... \end{capture}
+%%
+%% Writes the body to solutions/capture.md via Lua.
+%% The body is not rendered in the PDF.
+%% The solutions/ directory must exist before compilation.
+
+\NewEnviron{solution}[1]{
+  \blanks{#1}
+  \directlua{
+    local fh = io.open("solutions/capture.md", "w")
+    fh:write([[\detokenize\expandafter{\BODY}]])
+    fh:close()
+  }
+}
+
+\NewEnviron{solution*}[1]{
+  \blanks*
+  \directlua{
+    local fh = io.open("solutions/capture.md", "w")
+    fh:write([[\detokenize\expandafter{\BODY}]])
+    fh:close()
+  }
+}
+\endinput
