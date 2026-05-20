@@ -274,7 +274,7 @@
     \thispagestyle{empty}
     \huge
 
-    \phantom{top}\hfill{}\includegraphics[width=3in]{./WesternU.png}
+    \phantom{top}\hfill{}\includegraphics[width=3in]{./logos/logo}
     \begin{center}
       % title
       \vspace{1in}
