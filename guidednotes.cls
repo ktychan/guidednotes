@@ -24,6 +24,10 @@
   \def\@thecoursebreak{#3}
 }
 
+\newcommand{\setlogo}[1]{
+  \def\@thelogo{#1}
+}
+
 \newcommand{\thiscourse}{\@thecoursesubject{}~\@thecoursenumb{}}
 
 % ------------------------------------------------------------
@@ -270,7 +274,10 @@
     \thispagestyle{empty}
     \huge
 
-    \phantom{top}\hfill{}\includegraphics[width=3in]{./logos/logo}
+    \phantom{top}\hfill{}
+    \ifdefined\@thelogo
+      \includegraphics[width=3in]{\@thelogo}
+    \fi
     \begin{center}
       % title
       \vspace{1in}
