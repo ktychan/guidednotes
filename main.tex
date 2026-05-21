@@ -1,55 +1,57 @@
+%! TeX program = lualatex
 \documentclass{guidednotes}
 
-\geometry{showframe}
-\usepackage{adjustbox}
+\write18{mkdir -p solutions}
 
 \setauthor{Kelvin Chan}{University of Western Ontario}
-\setcourse{Calculus}{Calc}{1000}{Calculus I}
-\setterm{2025-09-03}{2025-12-05}{reading week}
+\setlogo{./standalones/WesternU_Horizontal_Full_CMYK}
+\setcourse{Subject}{Subj}{1234A}{Course Name}
+\setterm{Term}{YEAR}{reading week}
 
 \begin{document}
 \begin{week}{MONTH X to X}
   \section{Introduction}
 
-  The first line is prefixed with nothing.
+  \begin{solution}{5}
+    Suppose we have \(n = 1\).
+  \end{solution}
 
-  \blanklines{3}
-  
-  The second line is prefixed with medskip.
+  Another line.
+  \blanks{10}
+\end{week} 
 
-  \blanklines{3}
+\begin{week}{Demo 2}
+  Week 2 content.
 
-  There are some lines left.
-  
-  There are some lines left.
-
-  \blanklinesfill
-
+  \url{https://google.ca}
 \end{week}
 
-\begin{week}{MONTH X to X}
-  placeholder
-\end{week}
+
 
 % DO NOT REMOVE
 \backmatter{}
-\begin{luacode}
+\begin{luacode*}
+local function get_aux_dir()
+  for _, v in ipairs(arg or {}) do
+    local d = v:match("%-%-?output%-directory=(.+)")
+               or v:match("%-%-?aux%-directory=(.+)")
+    if d then return d end
+  end
+  return "."
+end
+
+local auxdir = get_aux_dir()
 local offset = titlepage + frontmatter
-local prev = offset + 1
-for i, pagenum in pairs(weeks) do
-  local f = io.open(string.format("./publish/week%d.tex", i), "w")
+local prev   = offset + 1
+
+local csv = io.open(auxdir .. "/weeks.csv", "w")
+csv:write("i,a,b\n")
+for i, pagenum in ipairs(weeks) do
   local a = prev
   local b = pagenum + offset - 1
-  local s = string.format("\\includepdf[pages=%d-%d]{../build/main.pdf}", a, b)
-
-  f:write("\\documentclass{article}")
-  f:write("\\usepackage{pdfpages}")
-  f:write("\\begin{document}")
-  f:write(s)
-  f:write("\\end{document}")
-  f:close()
-
+  csv:write(string.format("%d,%d,%d\n", i, a, b))
   prev = b + 1
 end
-\end{luacode}
+csv:close()
+\end{luacode*}
 \end{document}

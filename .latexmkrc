@@ -6,5 +6,4 @@ $do_cd = 1;
 
 $pdf_previewer = "open -a Skim";
 
-$out_dir = "build";
-$aux_dir = "build/aux";
+$aux_dir = ".aux";
