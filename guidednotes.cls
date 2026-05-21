@@ -75,6 +75,8 @@
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
+\RequirePackage{./blanks}
+
 % subfiles
 % \RequirePackage{refcount}
 % \RequirePackage{xr}
@@ -177,15 +179,9 @@
   end
 }
 
-\newcommand{\blanklinesfill}[1][\medskipamount]{
-  \setlength\vremaining{\dimexpr\textheight - \pagetotal\relax}
-  \blanklines[#1]{\directlua{calc_remaining_lines()}}
-  \vfill{}
-}
-
 \newcommand{\blanklines}[2][\medskipamount]{
   \vspace{#1}
-  \centerline{ \includegraphics{./standalones/grid_#2_by_40} }
+  \centerline{ \includegraphics{./standalones/build/grid_#2_by_40} }
 }
 
 \mdfdefinestyle{wide}{
