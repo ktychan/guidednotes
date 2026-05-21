@@ -1,4 +1,4 @@
-LATEXMK=latexmk -halt-on-error -interaction=nonstopmode -silent
+LATEXMK=latexmk -halt-on-error -interaction=nonstopmode
 COURSE=Subj_1000B_W24
 AUXDIR=.aux
 

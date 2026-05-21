@@ -72,7 +72,7 @@
 \RequirePackage{csquotes}
 
 % links and pdf
-\RequirePackage[hidelinks, pdfusetitle, colorlinks=true]{hyperref}
+\RequirePackage[hidelinks, pdfusetitle]{hyperref}
 
 % figure and tables
 \RequirePackage{float}
@@ -201,7 +201,6 @@
 }
 
 \newcommand{\blanklines}[2][\medskipamount]{
-  \vspace{#1}
   \blanks{#2}
 }
 
