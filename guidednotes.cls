@@ -270,34 +270,42 @@
 %
 % ------------------------------------------------------------
 \ifSubfilesClassLoaded{}{\AtBeginDocument{
-  \begin{titlepage}
-    \thispagestyle{empty}
-    \huge
+      \begin{titlepage} 
+        \thispagestyle{empty}
 
-    \phantom{top}\hfill{}
-    \ifdefined\@thelogo
-      \includegraphics[width=3in]{\@thelogo}
-    \fi
-    \begin{center}
-      % title
-      \vspace{1in}
+        % show a logo if defined.
+        % \ifdefined requires lualatex.
+        \ifdefined\@thelogo
+          \begin{tikzpicture}[remember picture, overlay]
+            \node[anchor=north east, inner sep=1cm]
+              at (current page.north east)
+              {\includegraphics[width=3in]{\@thelogo}};
+          \end{tikzpicture}
+        \fi
 
-      {\Huge\bfseries \@thecoursesubj~\@thecoursenumb: \@thecoursename}
+        % Push title block into the upper third
+        \vspace*{0.32\textheight}
 
-      \vspace{1cm}
-      \@theauthor
+        \noindent
+        {\fontsize{36}{40}\selectfont\bfseries \@thecoursename}
 
-      \@theinstitute
-      \vfill{}
+        \vspace{0.5em}
+        \noindent\rule{0.5\textwidth}{0.4pt}
+        \vspace{0.3em}
 
-      \@thecourseterm~\@thecourseyear
+        \noindent{\small\addfontfeatures{LetterSpace=8}\@thecoursesubject~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
+        \vfill
 
-      \vspace{2in}
-    \end{center}
+        % Author block
+        \noindent
+        {\large \@theauthor}\\[0.4em]
+        {\small\color{gray} \@theinstitute}
 
-    % create a blank page
-    \clearpage{\thispagestyle{empty}\cleardoublepage}
-  \end{titlepage}
+        \vfill
+
+        % create a blank page
+        \clearpage{\thispagestyle{empty}\cleardoublepage}
+      \end{titlepage}
   \directlua{titlepage = \the\value{page} - 1}
   
   \frontmatter{}
