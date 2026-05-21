@@ -185,7 +185,7 @@
 
 \newcommand{\blanklines}[2][\medskipamount]{
   \vspace{#1}
-  \centerline{ \includegraphics{./standalones/build/grid_#2_by_40} }
+  \blanks{#2}
 }
 
 \mdfdefinestyle{wide}{
