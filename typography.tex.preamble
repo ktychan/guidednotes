@@ -1,12 +1,23 @@
-% typography
+% vim: ft=tex
+
+% ------------------------------------------------------------
+%
+%           MATH
+%
+% ------------------------------------------------------------
+\everymath{\displaystyle}
+\renewcommand{\arcsin}{\sin^{-1}}
+\renewcommand{\arccos}{\cos^{-1}}
+\renewcommand{\arctan}{\tan^{-1}}
+
+% ------------------------------------------------------------
+%
+%           FONTS
+%
+% ------------------------------------------------------------
 \usepackage{fontspec}
 \usepackage{unicode-math}
-% \setmainfont[
-%   Ligatures=TeX,
-%   ItalicFont = {* Italic},
-%   BoldFont = {* Bold},
-%   BoldItalicFont = {* BoldItalic},
-% ]{STIX Two Text}
+
 \setmainfont{TeX Gyre Pagella}
 \setmathfont{STIX Two Math} %  TeX Gyre Termes Math, Asana Math,  Latin Modern Math
 \setmathfont[range=bb]{TeX Gyre Termes Math}
@@ -19,18 +30,102 @@
 \newcommand{\emNo}{{\emojifont{👎}}}
 \newcommand{\emMaybe}{{\emojifont{🤔}}}
 
+
+% ------------------------------------------------------------
+%
+%           COLOUR SCHEME
+%
+% ------------------------------------------------------------
 \usepackage[dvipsnames]{xcolor}
-% https://coolors.co/953946-82218b-007355-f59a23-ff4242
-\definecolor{info}{HTML}{953946}  % supplementary information
-\definecolor{supp}{HTML}{82218B}  % supplementary information
-\definecolor{main}{HTML}{007355}  % main message
-\definecolor{attn}{HTML}{F59A23}  % subtle easy to miss bits
-\definecolor{warn}{HTML}{D20000}  % warning for common mistake
 
-\newcommand{\hlinfo}[1]{{\color{info}#1}}
-\newcommand{\hlsupp}[1]{{\color{supp}#1}}
-\newcommand{\hlmain}[1]{{\color{main}#1}}
-\newcommand{\hlattn}[1]{{\color{attn}#1}}
-\newcommand{\hlwarn}[1]{{\color{warn}#1}}
+% light mode accent colours (readable on light background)
+\definecolor{light@bg}  {HTML}{FFFFFF}
+\definecolor{light@fg}  {HTML}{1A1A2E}
+\definecolor{light@main}{HTML}{B8860B}   % dark gold
+\definecolor{light@supp}{HTML}{6B3FA0}   % purple
+\definecolor{light@attn}{HTML}{C45C00}   % burnt orange
+\definecolor{light@warn}{HTML}{CC2200}   % red
+\definecolor{light@info}{HTML}{1A5C9A}   % blue
+\definecolor{light@url} {HTML}{2E7FA5}   % muted steel blue
 
-\everymath{\displaystyle}
+% dark mode accent colours (readable on dark background)
+\definecolor{dark@bg}  {HTML}{1E1E1E}
+\definecolor{dark@fg}  {HTML}{E0E0E0}
+\definecolor{dark@main}{HTML}{FFD700}   % bright gold
+\definecolor{dark@supp}{HTML}{C89FE8}   % light purple
+\definecolor{dark@attn}{HTML}{FFB060}   % light orange
+\definecolor{dark@warn}{HTML}{FF8080}   % light red
+\definecolor{dark@info}{HTML}{80C0F0}   % light blue
+\definecolor{dark@url} {HTML}{7EC4D8}   % lighter for dark background
+
+% semantic accent colours (initialised to light mode)
+\colorlet{accent@main}{light@main}
+\colorlet{accent@supp}{light@supp}
+\colorlet{accent@attn}{light@attn}
+\colorlet{accent@warn}{light@warn}
+\colorlet{accent@info}{light@info}
+
+% customization commands
+\newcommand{\setbackground}[1]{\pagecolor{#1}}
+\newcommand{\setforeground}[1]{\renewcommand{\normalcolor}{\color{#1}}}
+\newcommand{\setaccentcolor}[2]{\colorlet{accent@#1}{#2}}
+
+% highlight commands
+\newcommand{\hlmain}[1]{\textcolor{accent@main}{#1}}
+\newcommand{\hlsupp}[1]{\textcolor{accent@supp}{#1}}
+\newcommand{\hlattn}[1]{\textcolor{accent@attn}{#1}}
+\newcommand{\hlwarn}[1]{\textcolor{accent@warn}{#1}}
+\newcommand{\hlinfo}[1]{\textcolor{accent@info}{#1}}
+
+% URL
+\hypersetup{urlcolor=light@url}
+\NewDocumentCommand{\link}{O{}m}{%
+  \IfBlankTF{#1}%
+    {\href{#2}{{\small\ttfamily\color{light@url}{#2}\;\faExternalLink*}}}%
+    {\href{#2}{{\small\ttfamily\color{light@url}{#1}\;\faExternalLink*}}}%
+}
+
+\newcommand{\darkmodeapply}{%
+  \ifdarkmode
+    \setbackground{dark@bg}%
+    \setforeground{dark@fg}%
+    \hypersetup{urlcolor=dark@url}%
+    \normalcolor
+  \fi
+}
+
+% dark mode toggle
+\newif\ifdarkmode
+\darkmodefalse
+
+\newcommand{\darkmode}{%
+  \ifdarkmode
+    \darkmodefalse
+    \setbackground{light@bg}%
+    \setforeground{light@fg}%
+    \setaccentcolor{main}{light@main}%
+    \setaccentcolor{supp}{light@supp}%
+    \setaccentcolor{attn}{light@attn}%
+    \setaccentcolor{warn}{light@warn}%
+    \setaccentcolor{info}{light@info}%
+    \hypersetup{urlcolor=light@url}
+  \else
+    \darkmodetrue
+    \setbackground{dark@bg}%
+    \setforeground{dark@fg}%
+    \setaccentcolor{main}{dark@main}%
+    \setaccentcolor{supp}{dark@supp}%
+    \setaccentcolor{attn}{dark@attn}%
+    \setaccentcolor{warn}{dark@warn}%
+    \setaccentcolor{info}{dark@info}%
+    \hypersetup{urlcolor=dark@url}%
+  \fi
+  \normalcolor
+}
+
+% apply light mode defaults at start of document
+\AtBeginDocument{
+  \setbackground{light@bg}
+  \setforeground{light@fg}
+  \normalcolor
+}

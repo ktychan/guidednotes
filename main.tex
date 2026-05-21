@@ -3,12 +3,16 @@
 
 \write18{mkdir -p solutions}
 
-\setauthor{Kelvin Chan}{University of Western Ontario}
-\setlogo{./standalones/WesternU_Horizontal_Full_CMYK}
-\setcourse{Subject}{Subj}{1234A}{Course Name}
-\setterm{Term}{YEAR}{reading week}
+\setcourse{Subject}{Subj}{1000}{Course Name}{Subtitle}
+\setauthor{First Last}{F. Last}
+% \setterm{Term}{YEAR}
+% \setinstitute{University of \ldots{}}
+% \setlogo{./standalones/WesternU_Horizontal_Full_CMYK}
 
+\input{./typography.tex.preamble}
 \begin{document}
+
+% \darkmode
 \begin{week}{MONTH X to X}
   \section{Introduction}
 
@@ -23,9 +27,20 @@
 \begin{week}{Demo 2}
   Week 2 content.
 
-  \url{https://google.ca}
-\end{week}
+  \hlmain{main highlight}
 
+  \hlsupp{supplementary highlight}
+
+  \hlattn{attention}
+
+  \hlwarn{warning}
+
+  \hlinfo{info}
+
+  URL (\link[Google]{https://google.ca})
+
+  URL (\link{https://google.ca})
+\end{week}
 
 
 % DO NOT REMOVE

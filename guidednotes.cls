@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{guidednotes}[2025/08/07 v1.0 Guided Notes]
+\ProvidesClass{guidednotes}[2026/05/21 v1.1 Guided Notes]
 
 % based on the book class
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
@@ -8,20 +8,24 @@
 
 \newcommand{\setauthor}[2]{%
   \def\@theauthor{#1}
-  \def\@theinstitute{#2}
+  \def\@theauthorshort{#2}
 }
 
-\newcommand{\setcourse}[4]{%
+\newcommand{\setinstitute}[1]{
+  \def\@theinstitute{#1}
+}
+
+\newcommand{\setcourse}[5]{%
   \def\@thecoursesubject{#1}
   \def\@thecoursesubj{#2}
   \def\@thecoursenumb{#3}
   \def\@thecoursename{#4}
+  \def\@thecoursenamesubtitle{#5}
 }
 
-\newcommand{\setterm}[3]{%
+\newcommand{\setterm}[2]{%
   \def\@thecourseterm{#1}
   \def\@thecourseyear{#2}
-  \def\@thecoursebreak{#3}
 }
 
 \newcommand{\setlogo}[1]{
@@ -68,7 +72,7 @@
 \RequirePackage{csquotes}
 
 % links and pdf
-\RequirePackage[hidelinks, pdfusetitle]{hyperref}
+\RequirePackage[hidelinks, pdfusetitle, colorlinks=true]{hyperref}
 
 % figure and tables
 \RequirePackage{float}
@@ -106,7 +110,19 @@
 
 \newcommand{\firstpageheader}{}
 \fancypagestyle{firstpage}[plain]{
-  \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
+  \ifdefined\@thecourseterm
+    \ifdefined\@theauthorshort
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort, \@thecourseterm~\@thecourseyear)}
+    \else
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
+    \fi
+  \else
+    \ifdefined\@theauthorshort
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort)}
+    \else
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb}
+    \fi
+  \fi
   \fancyhead[C]{\small\firstpageheader{}}
   \renewcommand{\headrulewidth}{.4pt}
 }
@@ -138,6 +154,7 @@
 \newtheorem{example}[stmt]{Example}
 \newtheorem{discussion}[stmt]{Discussion}
 \newtheorem{exercise}[stmt]{Exercise}
+
 
 % ------------------------------------------------------------
 %
@@ -271,6 +288,7 @@
 % ------------------------------------------------------------
 \ifSubfilesClassLoaded{}{\AtBeginDocument{
       \begin{titlepage} 
+        \newgeometry{left=1.5in}
         \thispagestyle{empty}
 
         % show a logo if defined.
@@ -284,27 +302,33 @@
         \fi
 
         % Push title block into the upper third
-        \vspace*{0.32\textheight}
+        \vspace*{0.20\textheight}
 
-        \noindent
-        {\fontsize{36}{40}\selectfont\bfseries \@thecoursename}
+        {\Huge\bfseries\@thecoursesubj~\@thecoursenumb:~\@thecoursename}
 
-        \vspace{0.5em}
-        \noindent\rule{0.5\textwidth}{0.4pt}
-        \vspace{0.3em}
+        \ifdefined\@thecoursenamesubtitle
+          {\Huge\@thecoursenamesubtitle}
+        \fi
 
-        \noindent{\small\addfontfeatures{LetterSpace=8}\@thecoursesubject~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
-        \vfill
+        {\color{gray}\hrulefill{}}
+        
+        \ifdefined\@thecourseterm
+          {\large\@thecourseterm~\@thecourseyear}
+        \fi
 
-        % Author block
-        \noindent
-        {\large \@theauthor}\\[0.4em]
-        {\small\color{gray} \@theinstitute}
+        \vspace{1in}
 
-        \vfill
+        {\huge\@theauthor} \medskip
+
+        \ifdefined\@theinstitute
+          {\huge\@theinstitute}
+        \fi
+
+        \bigskip
 
         % create a blank page
         \clearpage{\thispagestyle{empty}\cleardoublepage}
+        \restoregeometry
       \end{titlepage}
   \directlua{titlepage = \the\value{page} - 1}
   
