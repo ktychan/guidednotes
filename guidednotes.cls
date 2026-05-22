@@ -287,7 +287,6 @@
 % ------------------------------------------------------------
 \ifSubfilesClassLoaded{}{\AtBeginDocument{
       \begin{titlepage} 
-        \newgeometry{left=1.5in}
         \thispagestyle{empty}
 
         % show a logo if defined.
@@ -303,31 +302,30 @@
         % Push title block into the upper third
         \vspace*{0.20\textheight}
 
-        {\Huge\bfseries\@thecoursesubj~\@thecoursenumb:~\@thecoursename}
+        \hspace*{1in}\parbox{6in}{\Huge\bfseries\@thecoursesubj~\@thecoursenumb:~\@thecoursename}
 
         \ifdefined\@thecoursenamesubtitle
-          {\Huge\@thecoursenamesubtitle}
+          \hspace*{1in}{\Huge\@thecoursenamesubtitle}
         \fi
 
-        {\color{gray}\hrulefill{}}
+        \hspace*{1in}{\color{gray}\hrulefill{}}
         
         \ifdefined\@thecourseterm
-          {\large\@thecourseterm~\@thecourseyear}
+          \hspace*{1in}{\large\@thecourseterm~\@thecourseyear}
         \fi
 
         \vspace{1in}
 
-        {\huge\@theauthor} \medskip
+        \hspace*{1in}{\huge\@theauthor} \medskip
 
         \ifdefined\@theinstitute
-          {\huge\@theinstitute}
+          \hspace*{1in}{\huge\@theinstitute}
         \fi
 
         \bigskip
 
         % create a blank page
         \clearpage{\thispagestyle{empty}\cleardoublepage}
-        \restoregeometry
       \end{titlepage}
   \directlua{titlepage = \the\value{page} - 1}
   
