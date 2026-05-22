@@ -100,7 +100,6 @@
 \newcommand{\hlinfo}[1]{\textcolor{accent@info}{#1}}
 
 % URL
-\hypersetup{urlcolor=light@url}
 \NewDocumentCommand{\link}{O{}m}{%
   \IfBlankTF{#1}%
     {\href{#2}{{\small\ttfamily\color{light@url}{#2}\;\faExternalLink*}}}%
@@ -111,7 +110,6 @@
   \ifdarkmode
     \setbackground{dark@bg}%
     \setforeground{dark@fg}%
-    \hypersetup{urlcolor=dark@url}%
     \normalcolor
   \fi
 }
@@ -130,7 +128,6 @@
     \setaccentcolor{attn}{light@attn}%
     \setaccentcolor{warn}{light@warn}%
     \setaccentcolor{info}{light@info}%
-    \hypersetup{urlcolor=light@url}
   \else
     \darkmodetrue
     \setbackground{dark@bg}%
@@ -140,7 +137,6 @@
     \setaccentcolor{attn}{dark@attn}%
     \setaccentcolor{warn}{dark@warn}%
     \setaccentcolor{info}{dark@info}%
-    \hypersetup{urlcolor=dark@url}%
   \fi
   \normalcolor
 }
