@@ -1,0 +1,40 @@
+name: Build PDFs
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install TeX Live and Ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-full ghostscript
+
+      - name: Build PDFs
+        run: make
+
+      - name: Upload PDFs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdfs
+          path: "*.pdf"
+          if-no-files-found: error
+
+      - name: Publish PDFs to GitHub Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest build"
+          body: "Automated PDF build from commit ${{ github.sha }}"
+          files: "*.pdf"
+          make_latest: true
