@@ -83,7 +83,7 @@
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
-\RequirePackage{./blanks}
+\RequirePackage{blanks}
 
 % subfiles
 % \RequirePackage{refcount}
@@ -316,10 +316,10 @@
 
         \vspace{1in}
 
-        \hspace*{1in}{\huge\@theauthor} \medskip
+        \hspace*{1in}{\Large\@theauthor} \medskip
 
         \ifdefined\@theinstitute
-          \hspace*{1in}{\huge\@theinstitute}
+          \hspace*{1in}{\Large\@theinstitute}
         \fi
 
         \bigskip
