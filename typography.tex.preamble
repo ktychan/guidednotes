@@ -38,6 +38,28 @@
 % ------------------------------------------------------------
 \usepackage[dvipsnames]{xcolor}
 
+% Primary colours
+\definecolor{WesternPurple}{HTML}{4F2683}   % PMS 268 C | CMYK 82/100/0/12 | RGB 79/38/131
+\definecolor{WesternWhite}{HTML}{FFFFFF}    % RGB 255/255/255
+ 
+% Secondary colours
+\definecolor{WesternOrchid}{HTML}{8F55E0}   % PMS 265 C | RGB 154/100/246
+\definecolor{WesternDeepFocus}{HTML}{201436}% PMS 275 C | CMYK 85/90/45/60 | RGB 32/20/54
+\definecolor{WesternBlack}{HTML}{000000}    % PMS Black 6C
+\definecolor{WesternGrey}{HTML}{818284}     % PMS Cool Gray 6C | CMYK 0/0/0/60 | RGB 129/130/132
+ 
+% Accent colours (use sparingly for small graphic elements only)
+\definecolor{WesternSky}{HTML}{7DEAFB}      % CMYK 40/0/0/0   | RGB 125/234/250
+\definecolor{WesternSpring}{HTML}{B9F876}   % CMYK 40/0/80/0  | RGB 185/248/118
+\definecolor{WesternVivid}{HTML}{FCF05E}    % CMYK 5/0/75/0   | RGB 252/240/94
+\definecolor{WesternTiger}{HTML}{F0A757}    % CMYK 0/20/80/0  | RGB 240/167/87
+
+\definecolor{main}{HTML}{B8860B}   % dark gold
+\definecolor{supp}{HTML}{6B3FA0}   % purple
+\definecolor{attn}{HTML}{C45C00}   % burnt orange
+\definecolor{warn}{HTML}{CC2200}   % red
+\definecolor{info}{HTML}{1A5C9A}   % blue
+
 % light mode accent colours (readable on light background)
 \definecolor{light@bg}  {HTML}{FFFFFF}
 \definecolor{light@fg}  {HTML}{1A1A2E}
