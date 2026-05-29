@@ -1,3 +1,4 @@
+%! TeX root = false
 % vim: ft=tex
 
 \input{./tikz.tex.preamble}
@@ -39,21 +40,28 @@
   label={(\arabic*)}
 }
 
+%
+% control how covered objects (e.g. \pause) are displayed.
+% dynamic means items to be revealed sooner are less transparent than items to be revleaed later.
+%
+\setbeamercovered{dynamic}
+
 % 
 % background
 %
-\setbeamercovered{dynamic}
-\setbeamertemplate{background canvas}{
-  \begin{tikzpicture}[remember picture,overlay]
-    \node[
-      anchor=south east,
-      xshift=-0.5em,
-      yshift=0.5em
-    ] at (current page.south east) {
-      \includegraphics[height=3ex]{./standalones/WesternU_Stacked_CMYK.eps}
-    };
-  \end{tikzpicture}
-}
+\IfFileExists{./standalones/WesternU_Stacked_CMYK.eps}{%
+  \setbeamertemplate{background canvas}{
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[
+        anchor=south east,
+        xshift=-0.5em,
+        yshift=0.5em
+        ] at (current page.south east) {
+          \includegraphics[height=3ex]{./standalones/WesternU_Stacked_CMYK.eps}
+        };
+    \end{tikzpicture}
+  }
+}{}
 
 \newenvironment{poll}{
   \begingroup
