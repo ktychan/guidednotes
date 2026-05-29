@@ -1,5 +1,3 @@
-$ENV{'TEXINPUTS'} = './:./guidednotes/:' . ($ENV{'TEXINPUTS'} // '');
-
 set_tex_cmds( '--shell-escape %O %S' );
 $pdf_mode = 4;  # 4 is lualatex, 5 is xelatex
 $dvi_mode = 0;
