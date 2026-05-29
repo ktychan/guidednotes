@@ -1,9 +1,14 @@
+%! vim:number
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{guidednotes}[2026/05/21 v1.1 Guided Notes]
+\ProvidesClass{guidednotes}[2026/05/21 v1.2 Guided Notes]
 
 % based on the book class
+\newif\ifblanks@draft
+\blanks@drafttrue                        % default: blank space, no dots
+\DeclareOption{draft}{\blanks@drafttrue}
+\DeclareOption{final}{\blanks@draftfalse}
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
-\ProcessOptions
+\ProcessOptions\relax
 \LoadClass[12pt, letterpaper]{book}
 
 \newcommand{\setauthor}[2]{%
@@ -62,7 +67,7 @@
 \RequirePackage[normalem]{ulem}
 
 % typography
-\RequirePackage{microtype} 
+\RequirePackage{microtype}
 \RequirePackage{fontawesome5}
 \RequirePackage{fontspec}
 \RequirePackage{unicode-math}
@@ -83,14 +88,173 @@
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
-\RequirePackage{blanks}
+% blanks (formerly blanks.sty -- inlined below)
+\RequirePackage{keyval}
+\RequirePackage{environ}
 
 % subfiles
-% \RequirePackage{refcount}
-% \RequirePackage{xr}
 \RequirePackage{xpatch}
 \RequirePackage{standalone}
 \RequirePackage{subfiles}
+
+% ------------------------------------------------------------
+%
+%           BLANKS (inlined from blanks.sty v12.0)
+%
+%  \ifblanks@draft is declared and the draft/final options are
+%  registered in the options section above (before \LoadClass), which
+%  is the only place \DeclareOption is legal in a class file.
+%
+% ------------------------------------------------------------
+
+%% ---- Parameters with defaults -----------------------------------------
+
+\newlength{\blanks@spacing}
+\setlength{\blanks@spacing}{0.175in}
+\newcommand{\blanks@colour}{gray!40}
+
+%% ---- Draft/final flag -------------------------------------------------
+%%
+%% \ifblanks@draft is declared and set in the options section above,
+%% before \LoadClass, so that \DeclareOption{draft} and
+%% \DeclareOption{final} are legal.  Nothing to do here.
+
+%% ---- keyval interface for spacing= and colour= ------------------------
+
+\define@key{blanks}{spacing}{\setlength{\blanks@spacing}{#1}}
+\define@key{blanks}{colour} {\renewcommand{\blanks@colour}{#1}}
+
+%% ---- Internal scratch registers ---------------------------------------
+
+\newcount\blanks@cols   % ceiling(width / \blanks@spacing)
+\newcount\blanks@rows   % number of rows to draw
+
+\newlength{\blanks@width}   % the active width for the current invocation
+\newlength{\blanks@lwid}    % scratch register for ceiling computation
+
+%% \blanks@computecols{<width>}
+\newcommand{\blanks@computecols}[1]{%
+  \setlength{\blanks@width}{#1}%
+  \setlength{\blanks@lwid}{\blanks@width}%
+  \addtolength{\blanks@lwid}{\blanks@spacing}%
+  \addtolength{\blanks@lwid}{-1sp}%
+  \blanks@cols=\blanks@lwid
+  \divide\blanks@cols by \blanks@spacing
+}
+
+%% ---- Named-box cache (final mode only) --------------------------------
+
+%% \blanks@ensurebox{cols}{rows}
+\newcommand{\blanks@ensurebox}[2]{%
+  \ifcsname blanksbox#1x#2\endcsname\else
+    \expandafter\newbox\csname blanksbox#1x#2\endcsname
+    \global\expandafter\setbox\csname blanksbox#1x#2\endcsname
+      \hbox{%
+        \begin{tikzpicture}[x=\blanks@spacing, y=\blanks@spacing,
+                            baseline=0pt, inner sep=0pt, outer sep=0pt]
+          \path (0,0) -- (#1, 0);
+          \foreach \col in {0, 1, ..., #1}{%
+            \foreach \row in {0, 1, ..., \the\numexpr#2-1\relax}{%
+              \fill[\blanks@colour] (\col, \row) circle[radius=0.5pt];
+            }%
+          }%
+        \end{tikzpicture}%
+      }%
+  \fi
+}
+
+%% \blanks@ensurerowbox{cols}
+\newcommand{\blanks@ensurerowbox}[1]{%
+  \ifcsname blanksrow#1\endcsname\else
+    \expandafter\newbox\csname blanksrow#1\endcsname
+    \global\expandafter\setbox\csname blanksrow#1\endcsname
+      \hbox{%
+        \begin{tikzpicture}[x=\blanks@spacing, y=\blanks@spacing,
+                            baseline=0pt, inner sep=0pt, outer sep=0pt]
+          \path (0,0) -- (#1, 0);
+          \foreach \col in {0, 1, ..., #1}{%
+            \fill[\blanks@colour] (\col, 0) circle[radius=0.5pt];
+          }%
+        \end{tikzpicture}%
+      }%
+  \fi
+}
+
+%% \blanks@rendergrid{cols}{rows}
+\newcommand{\blanks@rendergrid}[2]{%
+  \blanks@ensurebox{#1}{#2}%
+  \noindent
+  \expandafter\copy\csname blanksbox#1x#2\endcsname
+  \par
+}
+
+%% ---- \blanks[<width>]{n}: fixed number of rows ------------------------
+
+\newcommand{\blanks@fixed}[2][\linewidth]{%
+  \ifblanks@draft
+    \par\vspace{\dimexpr \blanks@spacing * #2\relax}\par
+  \else
+    \begingroup
+      \parindent\z@
+      \hfuzz=\maxdimen
+      \par
+      \blanks@computecols{#1}%
+      \blanks@rendergrid{\the\blanks@cols}{#2}%
+      \vspace{\blanks@spacing}%
+    \endgroup
+  \fi
+}
+
+%% ---- \blanks*[<width>]: stretchable fill, snapped to dot-row grid -----
+
+\newcommand{\blanks@fill}[1][\linewidth]{%
+  {\parindent\z@\par}%
+  \ifblanks@draft
+    \vfill
+  \else
+    \blanks@computecols{#1}%
+    \edef\blanks@curcols{\the\blanks@cols}%
+    \blanks@ensurerowbox{\blanks@curcols}%
+    \leaders\vbox to \blanks@spacing{%
+      \vss
+      \hbox{\expandafter\copy\csname blanksrow\blanks@curcols\endcsname}%
+      \vss
+    }\vfill
+    \par
+  \fi
+}
+
+\newcommand{\blanks}{%
+  \@ifstar
+    {\blanks@fill}%
+    {\blanks@fixed}%
+}
+
+%% ---- solution / solution* environments --------------------------------
+%%
+%% \begin{solution}{<rows>} ... \end{solution}
+%%
+%% Produces \blanks{<rows>} in the document and writes the body to
+%% solutions/capture.md via Lua.  The solutions/ directory must exist
+%% before compilation.
+
+\NewEnviron{solution}[1]{%
+  \blanks{#1}%
+  \directlua{
+    local fh = io.open("solutions/capture.md", "w")
+    fh:write([[\detokenize\expandafter{\BODY}]])
+    fh:close()
+  }%
+}
+
+\NewEnviron{solution*}[1]{%
+  \blanks*%
+  \directlua{
+    local fh = io.open("solutions/capture.md", "w")
+    fh:write([[\detokenize\expandafter{\BODY}]])
+    fh:close()
+  }%
+}
 
 % ------------------------------------------------------------
 %
@@ -168,7 +332,7 @@
 \newenvironment{week}[1]{
   \refstepcounter{week}
 
-  % befor code
+  % before code
   % chapter and section numbering
   \setcounter{chapter}{\theweek}
   \setcounter{section}{0}
@@ -194,7 +358,7 @@
 \newdimen\vremaining
 \directlua{
   function calc_remaining_lines()
-    local h = tex.dimen.vremaining / 65535 / 72.27 
+    local h = tex.dimen.vremaining / 65535 / 72.27
     local n = math.floor(h / 0.175) - 1
     tex.print(n)
   end
@@ -205,7 +369,6 @@
 }
 
 \mdfdefinestyle{wide}{
-  % userdefinedwidth=0.95\textwidth,
   innertopmargin=1em,
   innerleftmargin=1em,
   innerbottommargin=1em,
@@ -286,7 +449,7 @@
 %
 % ------------------------------------------------------------
 \ifSubfilesClassLoaded{}{\AtBeginDocument{
-      \begin{titlepage} 
+      \begin{titlepage}
         \thispagestyle{empty}
 
         % show a logo if defined.
@@ -309,7 +472,7 @@
         \fi
 
         \hspace*{1in}{\color{gray}\hrulefill{}}
-        
+
         \ifdefined\@thecourseterm
           \hspace*{1in}{\large\@thecourseterm~\@thecourseyear}
         \fi
@@ -328,7 +491,7 @@
         \clearpage{\thispagestyle{empty}\cleardoublepage}
       \end{titlepage}
   \directlua{titlepage = \the\value{page} - 1}
-  
+
   \frontmatter{}
   \pagenumbering{roman}
 
