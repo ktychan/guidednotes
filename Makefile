@@ -32,13 +32,6 @@ define run_latex
 	@run_one() { $(RUN_ONE); }; run_one '$(1)'
 endef
 
-.PHONY: all clean slides
-
-ALL_DEPS ?= build.pdf slides.pdf polls.pdf
-
-all: $(ALL_DEPS)
-	$(foreach dep,$^,cp $(dep) build/$(COURSE)_$(dep);)
-
 clean:
 	rm -f {*,**/*}.pdf
 	rm -f {*,**/*}.synctex.gz
