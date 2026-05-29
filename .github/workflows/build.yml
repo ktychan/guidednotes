@@ -1,7 +1,7 @@
 name: Build PDFs
 
-on:
-  push:
+# on:
+#   push:
 
 permissions:
   contents: write
@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pdfs
-          path: "*.pdf"
+          path: "build/*.pdf"
           if-no-files-found: error
 
       - name: Publish PDFs to GitHub Release

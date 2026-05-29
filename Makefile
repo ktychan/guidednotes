@@ -33,7 +33,7 @@ endef
 .PHONY: all clean slides
 
 all: build.pdf
-	$(foreach dep,$^,cp $(dep) build/$(COURSE)_$(dep);)
+	cp build.pdf build/${COURSE}.pdf
 
 clean:
 	rm -f {*,**/*}.pdf
