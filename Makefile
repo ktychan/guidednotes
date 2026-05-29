@@ -1,24 +1,28 @@
-LATEXMK=latexmk -halt-on-error -interaction=nonstopmode
-COURSE=Subj_1000B_W24
-AUXDIR=.aux
+LATEXMK=latexmk -halt-on-error -interaction=nonstopmode -silent
+COURSE="Subj_1000A_$(shell git rev-parse --abbrev-ref HEAD)"
 
-.PHONY: all clean main
+.PHONY: all clean slides 
 
-all: main
+all: build.pdf slides.pdf polls.pdf
+	$(foreach dep,$^,cp $(dep) build/$(COURSE)_$(dep);)
 
 clean: 
-	rm -rf ${COURSE}*.pdf
-	rm -rf build/
-	rm -rf **/*.pdf
-	rm -rf **/*.synctex.gz
+	rm -f {*,**/*}.pdf
+	rm -f {*,**/*}.synctex.gz
+	rm -rf **/.aux build
 
-main: main.tex
-	$(if $(wildcard standalones/*.tex), $(LATEXMK) standalones/*.tex)
-	${LATEXMK} -jobname=${COURSE} final.tex
-	mkdir -p build/
-	@tail -n +2 ${AUXDIR}/weeks.csv | while IFS=, read i a b; do \
+%.pdf: %.tex
+	${LATEXMK} $^
+
+main.pdf: $(wildcard standalones/*.tex) main.tex
+	${LATEXMK} $^
+
+build.pdf: build.tex main.pdf
+	@mkdir -p build/
+	${LATEXMK} $<
+	@tail -n +2 .aux/weeks.csv | while IFS=, read i a b; do \
 		gs -sDEVICE=pdfwrite -dQUIET -dNOPAUSE -dBATCH -dSAFER \
 		   -dFirstPage=$$a -dLastPage=$$b \
-		   -sOutputFile=$(COURSE)_week$$i.pdf \
-		   build/${COURSE}.pdf; \
+		   -sOutputFile=build/${COURSE}_week$$i.pdf \
+		   build.pdf; \
 	done
