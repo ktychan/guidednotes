@@ -90,7 +90,6 @@
 
 % blanks (formerly blanks.sty -- inlined below)
 \RequirePackage{keyval}
-\RequirePackage{environ}
 
 % subfiles
 \RequirePackage{xpatch}
@@ -228,32 +227,6 @@
   \@ifstar
     {\blanks@fill}%
     {\blanks@fixed}%
-}
-
-%% ---- solution / solution* environments --------------------------------
-%%
-%% \begin{solution}{<rows>} ... \end{solution}
-%%
-%% Produces \blanks{<rows>} in the document and writes the body to
-%% solutions/capture.md via Lua.  The solutions/ directory must exist
-%% before compilation.
-
-\NewEnviron{solution}[1]{%
-  \blanks{#1}%
-  \directlua{
-    local fh = io.open("solutions/capture.md", "w")
-    fh:write([[\detokenize\expandafter{\BODY}]])
-    fh:close()
-  }%
-}
-
-\NewEnviron{solution*}[1]{%
-  \blanks*%
-  \directlua{
-    local fh = io.open("solutions/capture.md", "w")
-    fh:write([[\detokenize\expandafter{\BODY}]])
-    fh:close()
-  }%
 }
 
 % ------------------------------------------------------------
