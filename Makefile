@@ -1,4 +1,5 @@
-LATEXMK = latexmk -halt-on-error -interaction=nonstopmode
+# vim:number
+LATEXMK = latexmk -halt-on-error -interaction=nonstopmode -silent
 COURSE  = "Subj_1000A_$(shell git rev-parse --abbrev-ref HEAD)"
 
 GREEN  = \033[32m
@@ -11,29 +12,32 @@ RESET  = \033[0m
 TS  := $(shell date +%Y%m%d-%H%M%S)
 LOG  = .aux/build-$(TS).log
 
-# run_latex <file>
-#   - Appends all latexmk output and executed commands to $(LOG).
-#   - set -x is scoped to a subshell ( ) so it cannot leak to the terminal.
-#   - Prints [latexmk, ....] <file> while compiling, then overwrites with
-#     [latexmk, okay] or [latexmk, fail] when done.
+# RUN_ONE: single-line shell function body called with one argument (the file).
+# Single-line avoids all tab/newline ambiguity when embedded in recipes or
+# inside other shell constructs.  Wrap as: run_one() { $(RUN_ONE); }
+RUN_ONE = \
+	printf '[latexmk, $(YELLOW)....$(RESET)] %s' "$$1"; \
+	( set -x; $(LATEXMK) "$$1" ) >> $(LOG) 2>&1; \
+	if [ $$? -eq 0 ]; then \
+	    printf '\r[latexmk, $(GREEN)okay$(RESET)] %s\n' "$$1"; \
+	else \
+	    printf '\r[latexmk, $(RED)fail$(RESET)] %s  (see $(LOG))\n' "$$1"; \
+	    exit 1; \
+	fi
+
+# run_latex <file>: make-level wrapper for a single file.
 define run_latex
 	@mkdir -p .aux
 	@ln -sf build-$(TS).log .aux/build.log
-	@file='$(1)'; \
-	printf '[latexmk, $(YELLOW)....$(RESET)] %s' "$$file"; \
-	( set -x; $(LATEXMK) $(1) ) >> $(LOG) 2>&1; \
-	if [ $$? -eq 0 ]; then \
-	    printf '\r[latexmk, $(GREEN)okay$(RESET)] %s\n' "$$file"; \
-	else \
-	    printf '\r[latexmk, $(RED)FAIL$(RESET)] %s  (see $(LOG))\n' "$$file"; \
-	    exit 1; \
-	fi
+	@run_one() { $(RUN_ONE); }; run_one '$(1)'
 endef
 
 .PHONY: all clean slides
 
-all: build.pdf
-	cp build.pdf build/${COURSE}.pdf
+ALL_DEPS ?= build.pdf slides.pdf polls.pdf
+
+all: $(ALL_DEPS)
+	$(foreach dep,$^,cp $(dep) build/$(COURSE)_$(dep);)
 
 clean:
 	rm -f {*,**/*}.pdf
@@ -44,7 +48,9 @@ clean:
 	$(call run_latex,$^)
 
 main.pdf: $(wildcard standalones/*.tex) main.tex
-	$(call run_latex,$^)
+	@mkdir -p .aux
+	@ln -sf build-$(TS).log .aux/build.log
+	@run_one() { $(RUN_ONE); }; for dep in $^; do run_one "$$dep"; done
 
 build.pdf: build.tex main.pdf
 	@mkdir -p build/
