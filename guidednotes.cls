@@ -213,11 +213,16 @@
 % ------------------------------------------------------------
 
 %% ── Defaults for document metadata macros ───────────────────────────────────
-\def\@theauthor{}\def\@theauthorshort{}
-\def\@theinstitute{}\def\@thelogo{}
-\def\@thecoursesubject{}\def\@thecoursesubj{}\def\@thecoursenumb{}
-\def\@thecoursename{}\def\@thecoursenamesubtitle{}
-\def\@thecourseterm{}\def\@thecourseyear{}
+\def\@theauthor{}
+\def\@theauthorshort{}
+\def\@theinstitute{}
+\def\@thelogo{}
+\def\@thecoursesubject{}
+\def\@thecoursesubj{}
+\def\@thecoursenumb{}
+\def\@thecoursetitle{}
+\def\@thecourseterm{}
+\def\@thecourseyear{}
 
 %% ── \loadconfig[filename] ────────────────────────────────────────────────────
 %% Reads config.yml (or the given file) and configures the document.
@@ -279,7 +284,6 @@
 \newtheorem{thm}[stmt]{Theorem}
 \newtheorem{definition}[stmt]{Definition}
 \newtheorem{example}[stmt]{Example}
-\newtheorem{discussion}[stmt]{Discussion}
 \newtheorem{exercise}[stmt]{Exercise}
 
 
@@ -427,11 +431,7 @@
         % Push title block into the upper third
         \vspace*{0.20\textheight}
 
-        \hspace*{1in}\parbox{6in}{\Huge\bfseries\@thecoursesubj~\@thecoursenumb:~\@thecoursename}
-
-        \ifx\@thecoursenamesubtitle\@empty\else
-          \hspace*{1in}{\Huge\@thecoursenamesubtitle}
-        \fi
+        \hspace*{1in}\parbox{6in}{\Huge\bfseries\@thecoursesubj~\@thecoursenumb\ifx\@thecoursetitle\@empty\else:~\@thecoursetitle\fi}
 
         \hspace*{1in}{\color{gray}\hrulefill{}}
 
@@ -463,6 +463,7 @@
   \tableofcontents{}
   \clearpage
 
+  \addcontentsline{toc}{chapter}{Course calendar(s)}
   \directlua{ require("guidednotes").print_calendars() }
 
   \clearpage{\thispagestyle{empty}\cleardoublepage}

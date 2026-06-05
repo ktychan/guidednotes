@@ -93,6 +93,7 @@ local function schedule_setup(opts)
   sch.course       = opts.course  or ""
   sch.section      = opts.section or ""
   sch.time         = opts.time    or ""
+  sch.colour       = opts.colour == "true"
 
   local rw = opts.readingweek
   sch.reading_week = (rw and rw ~= "") and parse_date(rw) or nil
@@ -199,13 +200,11 @@ local function build_lines()
   local weeks = build_weeks()
 
   local seen_months = {}
-  local function date_label(y, m, d, is_coloured)
+  local function date_label(y, m, d)
     local key   = y * 100 + m
     local first = not seen_months[key]
     seen_months[key] = true
-    if first and not is_coloured then
-      return MONTH[m] .. "~" .. d
-    end
+    if first then return MONTH[m] .. "~" .. d end
     return tostring(d)
   end
 
@@ -251,8 +250,8 @@ local function build_lines()
     local r1 = { "  \\textbf{" .. week.num .. "}" }
     for i = 0, 6 do
       local day = week.days[i]
-      local is_coloured = day.is_lec
-      local lbl = date_label(day.y, day.m, day.d, is_coloured)
+      local is_coloured = day.is_lec and sch.colour
+      local lbl = day.in_term and date_label(day.y, day.m, day.d) or ""
       if is_coloured then
         table.insert(r1, "\\cellcolor{" .. MONTH[day.m] .. "}" .. lbl)
       else
@@ -276,7 +275,7 @@ local function build_lines()
         end
 
         if day.is_lec then
-          local colour = "\\cellcolor{" .. MONTH[day.m] .. "}"
+          local colour = sch.colour and "\\cellcolor{" .. MONTH[day.m] .. "}" or ""
           if day.class_no then
             table.insert(parts, colour .. "\\classno{" .. day.class_no .. "}")
           elseif day.special then
@@ -425,22 +424,14 @@ local function list_csv(t)
   return table.concat(out, ", ")
 end
 
-local DAY_ABBR = {
-  Mon="M", Tue="Tu", Wed="W", Thu="Th", Fri="F", Sat="Sa", Sun="Su"
-}
-
 local function days_abbrev(t)
   local out = {}
   if type(t) == "string" then
-    for d in t:gmatch "[^,%s]+" do
-      table.insert(out, DAY_ABBR[d] or d)
-    end
+    for d in t:gmatch "[^,%s]+" do table.insert(out, d) end
   elseif type(t) == "table" then
-    for _, item in ipairs(t) do
-      table.insert(out, DAY_ABBR[item.key] or item.key)
-    end
+    for _, item in ipairs(t) do table.insert(out, item.key) end
   end
-  return table.concat(out)
+  return table.concat(out, "/")
 end
 
 ----------------------------------------------------------------------
@@ -484,10 +475,9 @@ function M.apply(filename)
   setm("@theinstitute",          data.institute       or "")
   setm("@thelogo",               data.logo            or "")
   setm("@thecoursesubject",      data.subject         or "")
-  setm("@thecoursename",         data.subject         or "")
   setm("@thecoursesubj",         data.subj            or "")
   setm("@thecoursenumb",         data.number          or "")
-  setm("@thecoursenamesubtitle", data.subtitle        or "")
+  setm("@thecoursetitle",        data.title           or "")
   setm("@thecourseterm",         term.name            or "")
 
   tex.print(COLORS)
@@ -513,6 +503,7 @@ local function setup_section(section_name)
     course      = trim((data.subj or "") .. " " .. (data.number or "")),
     section     = section_name,
     time        = time_str,
+    colour      = (type(sec.calendar) == "table" and sec.calendar.colour) or "false",
     days        = list_csv(sec.days),
     readingweek = term.readingweek or "",
     noclass     = list_dates(term.noclass),
@@ -541,7 +532,7 @@ function M.print_calendars()
   table.sort(names)
   for _, name in ipairs(names) do
     local sec = sections[name]
-    if type(sec) == "table" and sec.calendar == "true" then
+    if type(sec) == "table" and type(sec.calendar) == "table" and sec.calendar.show == "true" then
       print_schedule(name)
       tex.print("\\clearpage")
     end
