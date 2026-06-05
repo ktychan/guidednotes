@@ -11,32 +11,6 @@
 \ProcessOptions\relax
 \LoadClass[12pt, letterpaper]{book}
 
-\newcommand{\setauthor}[2]{%
-  \def\@theauthor{#1}
-  \def\@theauthorshort{#2}
-}
-
-\newcommand{\setinstitute}[1]{
-  \def\@theinstitute{#1}
-}
-
-\newcommand{\setcourse}[5]{%
-  \def\@thecoursesubject{#1}
-  \def\@thecoursesubj{#2}
-  \def\@thecoursenumb{#3}
-  \def\@thecoursename{#4}
-  \def\@thecoursenamesubtitle{#5}
-}
-
-\newcommand{\setterm}[2]{%
-  \def\@thecourseterm{#1}
-  \def\@thecourseyear{#2}
-}
-
-\newcommand{\setlogo}[1]{
-  \def\@thelogo{#1}
-}
-
 \newcommand{\thiscourse}{\@thecoursesubject{}~\@thecoursenumb{}}
 
 % ------------------------------------------------------------
@@ -84,6 +58,9 @@
 \RequirePackage{wrapfig}
 \RequirePackage{booktabs}
 \RequirePackage{multirow}
+\RequirePackage{longtable}
+\RequirePackage{colortbl}
+\RequirePackage{array}
 \RequirePackage{tikz}
 \RequirePackage{pgfplots}
 \pgfplotsset{compat=1.18}
@@ -235,6 +212,19 @@
 %
 % ------------------------------------------------------------
 
+%% ── Defaults for document metadata macros ───────────────────────────────────
+\def\@theauthor{}\def\@theauthorshort{}
+\def\@theinstitute{}\def\@thelogo{}
+\def\@thecoursesubject{}\def\@thecoursesubj{}\def\@thecoursenumb{}
+\def\@thecoursename{}\def\@thecoursenamesubtitle{}
+\def\@thecourseterm{}\def\@thecourseyear{}
+
+%% ── \loadconfig[filename] ────────────────────────────────────────────────────
+%% Reads config.yml (or the given file) and configures the document.
+\newcommand{\loadconfig}[1][config.yml]{%
+  \directlua{ require("guidednotes").apply("\luaescapestring{#1}") }%
+}
+
 % layout
 \geometry{margin=0.75in, top=0.25in, bottom=0.25in, nofoot, nomarginpar, includehead, includefoot, headheight=14pt, footskip=7pt, headsep=4pt}
 
@@ -247,17 +237,17 @@
 
 \newcommand{\firstpageheader}{}
 \fancypagestyle{firstpage}[plain]{
-  \ifdefined\@thecourseterm
-    \ifdefined\@theauthorshort
-      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort, \@thecourseterm~\@thecourseyear)}
+  \ifx\@thecourseterm\@empty
+    \ifx\@theauthorshort\@empty
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb}
     \else
-      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@thecourseterm~\@thecourseyear)}
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort)}
     \fi
   \else
-    \ifdefined\@theauthorshort
-      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort)}
+    \ifx\@theauthorshort\@empty
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@thecourseterm)}
     \else
-      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb}
+      \fancyhead[OL, ER]{\small \@thecoursesubj~\@thecoursenumb~(\@theauthorshort, \@thecourseterm)}
     \fi
   \fi
   \fancyhead[C]{\small\firstpageheader{}}
@@ -425,9 +415,8 @@
       \begin{titlepage}
         \thispagestyle{empty}
 
-        % show a logo if defined.
-        % \ifdefined requires lualatex.
-        \ifdefined\@thelogo
+        % show a logo if provided.
+        \ifx\@thelogo\@empty\else
           \begin{tikzpicture}[remember picture, overlay]
             \node[anchor=north east, inner sep=1cm]
               at (current page.north east)
@@ -440,21 +429,21 @@
 
         \hspace*{1in}\parbox{6in}{\Huge\bfseries\@thecoursesubj~\@thecoursenumb:~\@thecoursename}
 
-        \ifdefined\@thecoursenamesubtitle
+        \ifx\@thecoursenamesubtitle\@empty\else
           \hspace*{1in}{\Huge\@thecoursenamesubtitle}
         \fi
 
         \hspace*{1in}{\color{gray}\hrulefill{}}
 
-        \ifdefined\@thecourseterm
-          \hspace*{1in}{\large\@thecourseterm~\@thecourseyear}
+        \ifx\@thecourseterm\@empty\else
+          \hspace*{1in}{\large\@thecourseterm}
         \fi
 
         \vspace{1in}
 
         \hspace*{1in}{\Large\@theauthor} \medskip
 
-        \ifdefined\@theinstitute
+        \ifx\@theinstitute\@empty\else
           \hspace*{1in}{\Large\@theinstitute}
         \fi
 
@@ -473,6 +462,8 @@
   \addcontentsline{toc}{chapter}{\contentsname}
   \tableofcontents{}
   \clearpage
+
+  \directlua{ require("guidednotes").print_calendars() }
 
   \clearpage{\thispagestyle{empty}\cleardoublepage}
   \directlua{frontmatter = \the\value{page} - 1}  % has to be the last line of the front matter
