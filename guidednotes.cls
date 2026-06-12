@@ -465,6 +465,15 @@
 
   \addcontentsline{toc}{chapter}{Course calendar(s)}
   \directlua{ require("guidednotes").print_calendars() }
+  \clearpage
+
+  \directlua{
+    if io.open("misc/schedule.tex", "r") then
+    tex.print([[\string\addcontentsline{toc}{chapter}{Lecture schedule}]])
+    tex.print([[\string\subfile{misc/schedule.tex}]])
+    end
+  }
+  \clearpage
 
   \clearpage{\thispagestyle{empty}\cleardoublepage}
   \directlua{frontmatter = \the\value{page} - 1}  % has to be the last line of the front matter
