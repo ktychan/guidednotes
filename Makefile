@@ -59,21 +59,40 @@ main.pdf: $(STANDALONES) main.tex
 
 # main.tex writes weeks.csv into the aux directory latexmk hands to lualatex,
 # so it lands in .aux/ when .latexmkrc sets $$aux_dir and in the project root
-# when it does not. Look in both rather than assuming one.
+# when it does not. Look in both and take the most recently written one: a
+# leftover copy in the other location would otherwise silently supply stale
+# page ranges.
 WEEKS_CSV = .aux/weeks.csv weeks.csv
 
+# Splitting must copy page objects verbatim. Ghostscript's pdfwrite device
+# re-distills instead: it rewrites the pgfplots `shader=interp` surfaces (PDF
+# type 4 mesh shadings painted through shading patterns) into a form whose
+# pattern matrices Quartz cannot place, so the surfaces come out blank in
+# Preview and Quick Look while still looking fine in pdf.js viewers. qpdf
+# copies the objects untouched.
 build.pdf: build.tex main.pdf
 	@mkdir -p build/
 	$(call run_latex,$<)
-	@csv=$$(ls -1 $(WEEKS_CSV) 2>/dev/null | head -1); \
+	@command -v qpdf >/dev/null 2>&1 || { \
+	    printf '[weeks,  $(RED)FAIL$(RESET)] qpdf not found (brew install qpdf)\n'; \
+	    exit 1; \
+	}
+	@csv=$$(ls -t $(WEEKS_CSV) 2>/dev/null | head -1); \
 	if [ -z "$$csv" ]; then \
 	    printf '[weeks,  $(RED)FAIL$(RESET)] no weeks.csv in $(WEEKS_CSV)\n'; \
 	    exit 1; \
 	fi; \
+	printf '[weeks,  $(GREEN)okay$(RESET)] %s\n' "$$csv"; \
 	tail -n +2 "$$csv" | while IFS=, read i a b; do \
-		( set -x; \
-		  gs -sDEVICE=pdfwrite -dQUIET -dNOPAUSE -dBATCH -dSAFER \
-		     -dFirstPage=$$a -dLastPage=$$b \
-		     -sOutputFile=build/$(COURSE)_week$$i.pdf \
-		     build.pdf ) >> $(LOG) 2>&1; \
+	    out="build/$(COURSE)_week$$i.pdf"; \
+	    if [ "$$a" -gt "$$b" ]; then \
+	        rm -f "$$out"; \
+	        printf '[week $(YELLOW)%-3s$(RESET)] empty, skipped\n' "$$i"; \
+	        continue; \
+	    fi; \
+	    if ( set -x; qpdf build.pdf --pages . $$a-$$b -- "$$out" ) >> $(LOG) 2>&1; then \
+	        printf '[week $(GREEN)%-3s$(RESET)] pages %s-%s\n' "$$i" "$$a" "$$b"; \
+	    else \
+	        printf '[week $(RED)%-3s$(RESET)] pages %s-%s FAILED (see $(LOG))\n' "$$i" "$$a" "$$b"; \
+	    fi; \
 	done
