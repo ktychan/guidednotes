@@ -53,10 +53,14 @@ main.pdf: $(wildcard standalones/*.tex) main.tex
 build.pdf: build.tex main.pdf
 	@mkdir -p build/
 	$(call run_latex,$<)
+# qpdf, not `gs -sDEVICE=pdfwrite': gs re-emits every embedded font and drops
+# the subset tag from inside the font program, so several different subsets of
+# one face end up sharing a name.  Preview caches embedded fonts by that name
+# and draws the later ones from the first one's outlines -- stretchy delimiters
+# come out visibly broken, while pdf.js (VS Code) keys by object and looks
+# fine.  qpdf copies the page objects verbatim, fonts and links included.
 	@tail -n +2 .aux/weeks.csv | while IFS=, read i a b; do \
 		( set -x; \
-		  gs -sDEVICE=pdfwrite -dQUIET -dNOPAUSE -dBATCH -dSAFER \
-		     -dFirstPage=$$a -dLastPage=$$b \
-		     -sOutputFile=build/$(COURSE)_week$$i.pdf \
-		     build.pdf ) >> $(LOG) 2>&1; \
+		  qpdf --warning-exit-0 --empty --pages build.pdf $$a-$$b -- \
+		       build/$(COURSE)_week$$i.pdf ) >> $(LOG) 2>&1; \
 	done
