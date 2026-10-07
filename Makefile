@@ -45,22 +45,54 @@ endef
 %.pdf: %.tex
 	$(call run_latex,$^)
 
-main.pdf: $(wildcard standalones/*.tex) main.tex
+# Standalone figures to build before the notes. A course Makefile can list
+# fragments here -- files under standalones/ that are \input by another
+# figure rather than compiled on their own -- by setting STANDALONE_EXCLUDE
+# *before* including this file.
+STANDALONE_EXCLUDE ?=
+STANDALONES = $(filter-out $(STANDALONE_EXCLUDE),$(wildcard standalones/*.tex))
+
+main.pdf: $(STANDALONES) main.tex
 	@mkdir -p .aux
 	@ln -sf build-$(TS).log .aux/build.log
 	@run_one() { $(RUN_ONE); }; for dep in $^; do run_one "$$dep"; done
 
+# main.tex writes weeks.csv into the aux directory latexmk hands to lualatex,
+# so it lands in .aux/ when .latexmkrc sets $$aux_dir and in the project root
+# when it does not. Look in both and take the most recently written one: a
+# leftover copy in the other location would otherwise silently supply stale
+# page ranges.
+WEEKS_CSV = .aux/weeks.csv weeks.csv
+
+# Splitting must copy page objects verbatim. Ghostscript's pdfwrite device
+# re-distills instead: it rewrites the pgfplots `shader=interp` surfaces (PDF
+# type 4 mesh shadings painted through shading patterns) into a form whose
+# pattern matrices Quartz cannot place, so the surfaces come out blank in
+# Preview and Quick Look while still looking fine in pdf.js viewers. qpdf
+# copies the objects untouched.
 build.pdf: build.tex main.pdf
 	@mkdir -p build/
 	$(call run_latex,$<)
-# qpdf, not `gs -sDEVICE=pdfwrite': gs re-emits every embedded font and drops
-# the subset tag from inside the font program, so several different subsets of
-# one face end up sharing a name.  Preview caches embedded fonts by that name
-# and draws the later ones from the first one's outlines -- stretchy delimiters
-# come out visibly broken, while pdf.js (VS Code) keys by object and looks
-# fine.  qpdf copies the page objects verbatim, fonts and links included.
-	@tail -n +2 .aux/weeks.csv | while IFS=, read i a b; do \
-		( set -x; \
-		  qpdf --warning-exit-0 --empty --pages build.pdf $$a-$$b -- \
-		       build/$(COURSE)_week$$i.pdf ) >> $(LOG) 2>&1; \
+	@command -v qpdf >/dev/null 2>&1 || { \
+	    printf '[weeks,  $(RED)FAIL$(RESET)] qpdf not found (brew install qpdf)\n'; \
+	    exit 1; \
+	}
+	@csv=$$(ls -t $(WEEKS_CSV) 2>/dev/null | head -1); \
+	if [ -z "$$csv" ]; then \
+	    printf '[weeks,  $(RED)FAIL$(RESET)] no weeks.csv in $(WEEKS_CSV)\n'; \
+	    exit 1; \
+	fi; \
+	printf '[weeks,  $(GREEN)okay$(RESET)] %s\n' "$$csv"; \
+	tail -n +2 "$$csv" | while IFS=, read i a b; do \
+	    out="build/$(COURSE)_week$$i.pdf"; \
+	    if [ "$$a" -gt "$$b" ]; then \
+	        rm -f "$$out"; \
+	        printf '[week $(YELLOW)%-3s$(RESET)] empty, skipped\n' "$$i"; \
+	        continue; \
+	    fi; \
+	    if ( set -x; qpdf build.pdf --pages . $$a-$$b -- "$$out" ) >> $(LOG) 2>&1; then \
+	        printf '[week $(GREEN)%-3s$(RESET)] pages %s-%s\n' "$$i" "$$a" "$$b"; \
+	    else \
+	        printf '[week $(RED)%-3s$(RESET)] pages %s-%s FAILED (see $(LOG))\n' "$$i" "$$a" "$$b"; \
+	    fi; \
 	done
